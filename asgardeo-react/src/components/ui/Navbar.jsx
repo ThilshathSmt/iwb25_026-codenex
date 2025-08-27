@@ -1,150 +1,196 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
-import { ShieldCheck, Menu, X, Bell, Newspaper } from "lucide-react";
-
-// Placeholder for a dropdown/slider that could show notifications
-const AlertSlider = ({ isOpen, toggleAlertSlider }) => {
-    if (!isOpen) return null;
-
-    return (
-        <div className="absolute top-full right-4 mt-2 w-80 bg-white rounded-lg shadow-xl z-50">
-            <div className="flex justify-between items-center p-4 border-b">
-                <h3 className="font-semibold text-gray-800">Notifications</h3>
-                <button onClick={toggleAlertSlider} className="text-gray-500 hover:text-gray-800">
-                    <X size={20} />
-                </button>
-            </div>
-            <div className="p-4">
-                <p className="text-center text-gray-600">You have no new notifications.</p>
-                {/* Future notifications would be listed here */}
-            </div>
-        </div>
-    );
-};
-
+import { Bell, X, Newspaper } from "lucide-react";
+import AlertSlider from "./AlertSlider";
+import axios from "axios";
+import logo from "../../assets/waraid.png";
 
 const Navbar = () => {
     const { state, signIn, signOut, getBasicUserInfo } = useAuthContext();
-    const [userRoles, setUserRoles] = useState([]);
+    const [userRole, setUserRole] = useState(null);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
-    
-    // Dummy alerts for the ticker, as there's no backend for this yet
-    const safetyAlerts = [
-        { text: "Tip: Always be aware of your surroundings in crowded places.", url: "#" },
-        { text: "Alert: Increased security in downtown area today.", url: "#" },
-        { text: "Info: Local festival scheduled for this weekend. Expect traffic.", url: "#" },
-    ];
+    const [newsAlerts, setNewsAlerts] = useState([]);
     const [currentAlertIndex, setCurrentAlertIndex] = useState(0);
-
     const location = useLocation();
 
-    // Fetch user roles when authenticated
     useEffect(() => {
-        if (state.isAuthenticated) {
-            getBasicUserInfo()
-                .then((info) => {
-                    setUserRoles(info.groups || []); 
-                })
-                .catch((error) => {
-                    console.error("Failed to get user info:", error);
-                });
-        }
+        getBasicUserInfo()
+            .then((response) => {
+                console.log(response);
+                setUserRole(response.roles);
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
+        fetchNews();
     }, [state.isAuthenticated, getBasicUserInfo]);
-    
-    // Cycle through the safety alerts for the top bar
+
     useEffect(() => {
         const intervalId = setInterval(() => {
-            setCurrentAlertIndex(prevIndex => (prevIndex + 1) % safetyAlerts.length);
-        }, 8000); // Change alert every 8 seconds
+            setCurrentAlertIndex(
+                (prevIndex) => (prevIndex + 1) % newsAlerts.length
+            );
+        }, 10000); // Change news alert every 10 seconds
+
         return () => clearInterval(intervalId);
-    }, [safetyAlerts.length]);
+    }, [newsAlerts]);
 
-    const isAdmin = userRoles.includes("admin");
+    const fetchNews = async () => {
+        try {
+            const response = await axios.get("http://localhost:8060/news");
+            if (response.data && response.data.articles) {
+                setNewsAlerts(
+                    response.data.articles.map((article) => ({
+                        title: article.title,
+                        url: article.url,
+                    }))
+                );
+            }
+        } catch (error) {
+            console.error("Error fetching news:", error);
+        }
+    };
 
-    const isActivePage = (path) => location.pathname === path;
+    const isActivePage = (path) => {
+        return location.pathname === path;
+    };
+
+    const isAdmin = userRole === "Admin";
 
     const navLinkStyles = (path) => `
-        block mt-4 lg:inline-block lg:mt-0 
-        text-blue-600 hover:text-white hover:bg-blue-600 
-        px-3 py-2 rounded-md mr-4 transition-colors duration-300
-        ${isActivePage(path) ? "font-bold" : ""}
-    `;
+    block mt-4 lg:inline-block lg:mt-0 
+    text-[#004AAD] hover:text-white hover:bg-[#004AAD] 
+    px-3 py-2 rounded-md mr-4
+    relative
+    ${
+        isActivePage(path)
+            ? "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#004AAD]"
+            : ""
+    }
+  `;
+
+    const toggleAlertSlider = () => {
+        setIsAlertOpen(!isAlertOpen);
+    };
 
     return (
         <div>
-            {/* Safety Alerts Ticker Bar */}
-            <div className="w-full py-2 px-4 text-center bg-yellow-400 text-yellow-900">
-                <div className="flex items-center justify-center">
-                    <Newspaper className="mr-2" size={20} />
-                    <a href={safetyAlerts[currentAlertIndex].url} className="hover:underline">
-                        {safetyAlerts[currentAlertIndex].text}
-                    </a>
+            {/* News Alerts Bar */}
+            {newsAlerts.length > 0 && (
+                <div className="w-full py-2 px-4 text-center bg-blue-600 text-white">
+                    <div className="flex items-center justify-center">
+                        <Newspaper className="mr-2" size={20} />
+                        <a
+                            href={newsAlerts[currentAlertIndex].url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                        >
+                            {newsAlerts[currentAlertIndex].title}
+                        </a>
+                    </div>
                 </div>
-            </div>
+            )}
 
             <nav className="flex items-center justify-between flex-wrap bg-white p-6 px-4 shadow-md relative">
                 {/* Logo Section */}
-                <div className="flex items-center flex-shrink-0 text-blue-600 ml-4 lg:ml-20">
-                    <ShieldCheck className="h-8 w-8 mr-2" />
-                    <Link to="/" className="font-semibold text-xl tracking-tight">
-                        SafePath
+                <div className="flex items-center flex-shrink-0 ml-20">
+                    <Link to="/">
+                        <img
+                            src={logo}
+                            alt="War Aid App Logo"
+                            className="h-14 mr-2"
+                        />
                     </Link>
                 </div>
-
                 {/* Mobile Menu Button */}
                 <div className="block lg:hidden">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="flex items-center px-3 py-2 border rounded text-blue-500 border-blue-500 hover:text-blue-800 hover:border-blue-800"
+                        className="flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white"
                     >
-                        {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                        <svg
+                            className="fill-current h-3 w-3"
+                            viewBox="0 0 20 20"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <title>Menu</title>
+                            <path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z" />
+                        </svg>
                     </button>
                 </div>
-
-                {/* Navigation Links and Auth Buttons */}
-                <div className={`w-full flex-grow lg:flex lg:items-center lg:w-auto ${isMenuOpen ? "block" : "hidden"}`}>
-                    <div className="text-sm lg:flex-grow lg:text-center">
-                        <Link to="/" className={navLinkStyles("/")}>Homepage</Link>
-                        <Link to="/map" className={navLinkStyles("/map")}>Interactive Map</Link>
-                        <Link to="/report" className={navLinkStyles("/report")}>Report Incident</Link>
-                         {/* Admin-only link */}
+                {/* Navigation Links, Auth Button, and Bell Icon - Collapsible */}
+                <div
+                    className={`w-full flex-grow lg:flex lg:items-center lg:w-auto ${
+                        isMenuOpen ? "block" : "hidden"
+                    }`}
+                >
+                    <div className="lg:flex lg:justify-center lg:flex-1">
+                        <Link to="/" className={navLinkStyles("/")}>
+                            Homepage
+                        </Link>
+                        <Link
+                            to="/ResourceLocator"
+                            className={navLinkStyles("/ResourceLocator")}
+                        >
+                            Resource Locator
+                        </Link>
+                        <Link
+                            to="/Documentation"
+                            className={navLinkStyles("/Documentation")}
+                        >
+                            Documentation Tool
+                        </Link>
+                        <Link
+                            to="/EmergencyContacts"
+                            className={navLinkStyles("/EmergencyContacts")}
+                        >
+                            Emergency Contacts
+                        </Link>
                         {isAdmin && (
-                            <Link to="/admin-dashboard" className={navLinkStyles("/admin-dashboard")}>
-                                Admin Dashboard
+                            <Link
+                                to="/Manage"
+                                className={navLinkStyles("/Manage")}
+                            >
+                                Manage
                             </Link>
                         )}
                     </div>
-
-                    <div className="mt-4 lg:mt-0 flex items-center">
+                    {/* Auth Button and Bell Icon */}
+                    <div className="mt-4 lg:mt-0 lg:ml-4 flex items-center">
                         {state?.isAuthenticated ? (
                             <button
                                 onClick={() => signOut()}
-                                className="inline-block px-6 py-2 leading-none border rounded text-white bg-blue-600 border-blue-600 hover:bg-blue-700 mr-4"
+                                className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
                             >
                                 Logout
                             </button>
                         ) : (
                             <button
                                 onClick={() => signIn()}
-                                className="inline-block px-4 py-2 leading-none border rounded text-blue-600 border-blue-500 hover:text-white hover:bg-blue-600"
+                                className="w-48 lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
                             >
                                 Login / Signup
                             </button>
                         )}
-                        {/* Bell Icon */}
+                        {/* Bell Icon - Always visible */}
                         <button
-                            onClick={() => setIsAlertOpen(!isAlertOpen)}
-                            className="text-blue-600 hover:text-blue-800 ml-2"
+                            onClick={toggleAlertSlider}
+                            className="text-[#004AAD] hover:text-[#002d6b]"
                         >
                             <Bell size={24} />
                         </button>
                     </div>
                 </div>
 
-                {/* Alert Slider Component */}
-                <AlertSlider isOpen={isAlertOpen} toggleAlertSlider={() => setIsAlertOpen(!isAlertOpen)} />
+                {/* Alert Slider */}
+                <AlertSlider
+                    isOpen={isAlertOpen}
+                    toggleAlertSlider={toggleAlertSlider}
+                />
             </nav>
         </div>
     );

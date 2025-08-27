@@ -1,21 +1,27 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import HomePage from './pages/homePage';
-import InteractiveMapPage from './pages/InteractiveMapPage'; // Placeholder page
-import ReportIncidentPage from './pages/ReportIncidentPage'; // Placeholder page
-import AdminDashboardPage from './pages/AdminDashboardPage'; // Placeholder page
-import EmergencyContactsPage from './pages/EmergencyContactsPage'; // Placeholder page
+import Home from './pages/homePage';
+import DocumentationToolPage from './pages/DocumentationToolPage';
+import ResourceLocatorPage from './pages/resourceLocatorPage';
+import ManagePage from './pages/manage';
+import AdminResourceLocatorPage from './pages/admin/adminResourcePage';
+import AdminAlertPage from './pages/admin/adminAlertPage';
+import EmergencyContacts from './pages/EmergencyContacts';
+import PrivateRoute from './components/routing/PrivateRouter';
 
-const AppRouter = () => {
+function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/map" element={<InteractiveMapPage />} />
-      <Route path="/report" element={<ReportIncidentPage />} />
-      <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
-      <Route path="/emergency-contacts" element={<EmergencyContactsPage />} />
+      
+      <Route path="/" element={<Home />} />
+      <Route path="/Documentation" element={<DocumentationToolPage />} />
+      <Route path='/ResourceLocator' element={<ResourceLocatorPage/>}/>
+      <Route path="/EmergencyContacts" element={<EmergencyContacts />} />
+      <Route path="/Manage" element={<PrivateRoute><ManagePage /></PrivateRoute>} />
+      <Route path="/AdminResourceLocator" element={<PrivateRoute><AdminResourceLocatorPage /></PrivateRoute>} />
+      <Route path="/AdminAlert" element={<PrivateRoute><AdminAlertPage /></PrivateRoute>} />
     </Routes>
   );
-};
+}
 
 export default AppRouter;

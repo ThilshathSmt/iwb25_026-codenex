@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
-import Navbar from "../componenets/ui/Navbar"; 
+import Navbar from "../components/ui/Navbar"; 
 import { ShieldAlert, Map, Ambulance, Building, ShieldCheck, Newspaper, MessageSquare, Camera, MapPin, NotebookText, HeartHandshake } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExclamationCircle, faSearch } from "@fortawesome/free-solid-svg-icons";

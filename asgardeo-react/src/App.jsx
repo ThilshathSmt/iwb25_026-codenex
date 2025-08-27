@@ -8,10 +8,10 @@ import Chatbot from "./components/ChatBot"; // Import the Chatbot component
 import ChatbotButton from "./components/ui/ChatBotButton"; // Import the button to open the chatbot
 
 const authConfig = {
-    signInRedirectURL: "http://localhost:5173/",
-    signOutRedirectURL: "http://localhost:5173/",
-    clientID: "h14EPNFXyNu73kfxGTk_bEcgjfUa",
-    baseUrl: "https://api.asgardeo.io/t/dana",
+    signInRedirectURL: "http://localhost:5173",
+    signOutRedirectURL: "http://localhost:5173",
+    clientID: "qqEpnkv051QgwstfZa0SJOJnhMAa",
+    baseUrl: "https://api.asgardeo.io/t/safepath",
     scope: [
         "openid",
         "profile",

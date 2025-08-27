@@ -4,7 +4,7 @@ import { useAuthContext } from "@asgardeo/auth-react";
 import { Bell, X, Newspaper } from "lucide-react";
 import AlertSlider from "./AlertSlider";
 import axios from "axios";
-import logo from "../../assets/waraid.png";
+import logo from "../../assets/Safe-Path.png";
 
 const Navbar = () => {
     const { state, signIn, signOut, getBasicUserInfo } = useAuthContext();

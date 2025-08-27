@@ -327,7 +327,7 @@ const HomePage = () => {
             </main>
 
             <footer className="bg-gray-800 text-white py-8 text-center">
-                <p>&copy; 2024 WarAID. All rights reserved.</p>
+                <p>&copy; 2024 SafePath. All rights reserved.</p>
             </footer>
         </div>
     );

@@ -58,16 +58,18 @@ const Navbar = () => {
         return location.pathname === path;
     };
 
-    const isAdmin = userRole === "Admin";
+    const isAdmin = userRole === "admin";
+    const isResponder = userRole === "responder";
+    const isTourist = userRole === "tourist";
 
     const navLinkStyles = (path) => `
     block mt-4 lg:inline-block lg:mt-0 
-    text-[#004AAD] hover:text-white hover:bg-[#004AAD] 
+    text-[#28a745] hover:text-white hover:bg-[#28a745] 
     px-3 py-2 rounded-md mr-4
     relative
     ${
         isActivePage(path)
-            ? "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#004AAD]"
+            ? "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-[#28a745]"
             : ""
     }
   `;
@@ -78,9 +80,9 @@ const Navbar = () => {
 
     return (
         <div>
-            {/* News Alerts Bar */}
+            {/* Travel Alerts Bar */}
             {newsAlerts.length > 0 && (
-                <div className="w-full py-2 px-4 text-center bg-blue-600 text-white">
+                <div className="w-full py-2 px-4 text-center bg-[#28a745] text-white">
                     <div className="flex items-center justify-center">
                         <Newspaper className="mr-2" size={20} />
                         <a
@@ -101,16 +103,17 @@ const Navbar = () => {
                     <Link to="/">
                         <img
                             src={logo}
-                            alt="War Aid App Logo"
+                            alt="SafePath Logo"
                             className="h-14 mr-2"
                         />
                     </Link>
+                    
                 </div>
                 {/* Mobile Menu Button */}
                 <div className="block lg:hidden">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="flex items-center px-3 py-2 border rounded text-blue-200 border-blue-400 hover:text-white hover:border-white"
+                        className="flex items-center px-3 py-2 border rounded text-[#28a745] border-[#28a745] hover:text-white hover:bg-[#28a745]"
                     >
                         <svg
                             className="fill-current h-3 w-3"
@@ -130,32 +133,48 @@ const Navbar = () => {
                 >
                     <div className="lg:flex lg:justify-center lg:flex-1">
                         <Link to="/" className={navLinkStyles("/")}>
-                            Homepage
+                            Home
                         </Link>
                         <Link
                             to="/ResourceLocator"
                             className={navLinkStyles("/ResourceLocator")}
                         >
-                            Resource Locator
+                            Safe Places
                         </Link>
                         <Link
                             to="/Documentation"
                             className={navLinkStyles("/Documentation")}
                         >
-                            Documentation Tool
+                            Report Incident
                         </Link>
                         <Link
                             to="/EmergencyContacts"
                             className={navLinkStyles("/EmergencyContacts")}
                         >
-                            Emergency Contacts
+                            Emergency
                         </Link>
                         {isAdmin && (
                             <Link
                                 to="/Manage"
                                 className={navLinkStyles("/Manage")}
                             >
-                                Manage
+                                Admin
+                            </Link>
+                        )}
+                        {isResponder && (
+                            <Link
+                                to="/Responder"
+                                className={navLinkStyles("/Responder")}
+                            >
+                                Responder
+                            </Link>
+                        )}
+                        {isTourist && (
+                            <Link
+                                to="/Tourist"
+                                className={navLinkStyles("/Tourist")}
+                            >
+                                Tourist
                             </Link>
                         )}
                     </div>
@@ -164,14 +183,14 @@ const Navbar = () => {
                         {state?.isAuthenticated ? (
                             <button
                                 onClick={() => signOut()}
-                                className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
+                                className="w-48 lg:w-auto inline-block px-10 py-2 leading-none border rounded text-white bg-[#28a745] border-[#28a745] hover:bg-white hover:text-[#28a745] mr-4"
                             >
                                 Logout
                             </button>
                         ) : (
                             <button
                                 onClick={() => signIn()}
-                                className="w-48 lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#004AAD] border-[#004AAD] hover:bg-white hover:text-[#004AAD] mr-4"
+                                className="w-48 lg:w-auto inline-block px-4 py-2 leading-none border rounded text-white bg-[#28a745] border-[#28a745] hover:bg-white hover:text-[#28a745] mr-4"
                             >
                                 Login / Signup
                             </button>
@@ -179,7 +198,7 @@ const Navbar = () => {
                         {/* Bell Icon - Always visible */}
                         <button
                             onClick={toggleAlertSlider}
-                            className="text-[#004AAD] hover:text-[#002d6b]"
+                            className="text-[#28a745] hover:text-[#218838]"
                         >
                             <Bell size={24} />
                         </button>

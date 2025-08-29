@@ -3,7 +3,8 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "@asgardeo/auth-react";
 import axios from "axios";
 
-const PrivateRoute = ({ children }) => {
+// This component now accepts a `requiredRole` prop
+const PrivateRoute = ({ children, requiredRole }) => {
   const { state, signIn, getIDToken } = useAuthContext();
   const location = useLocation();
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -14,14 +15,33 @@ const PrivateRoute = ({ children }) => {
     const validateToken = async () => {
       try {
         const idToken = await getIDToken();
-        console.log('ID Token:', idToken); // Log the ID token for debugging
+        console.log('ID Token:', idToken);
 
         if (!idToken) {
           throw new Error("No ID token available");
         }
 
-        // Validate the ID token with the backend
-        const response = await axios.get('http://localhost:8050/api/admin', {
+        // Determine which backend endpoint to call based on the required role
+        let endpoint = '';
+        switch(requiredRole) {
+          case 'admin':
+            endpoint = 'http://localhost:8050/api/admin';
+            break;
+          case 'responder':
+            endpoint = 'http://localhost:8050/api/responder';
+            break;
+          case 'tourist':
+            endpoint = 'http://localhost:8050/api/tourist';
+            break;
+          default:
+            // For routes that don't require a specific role but just authentication
+            endpoint = 'http://localhost:8050/api/validate';
+        }
+
+        console.log(`Validating against endpoint: ${endpoint} for role: ${requiredRole}`);
+
+        // Validate the ID token with the backend for the specific role
+        const response = await axios.get(endpoint, {
           headers: {
             Authorization: `Bearer ${idToken}`,
           },
@@ -34,40 +54,40 @@ const PrivateRoute = ({ children }) => {
       } catch (error) {
         console.error('Authorization failed', error);
         setIsAuthorized(false);
-        setError('You are not authorized to view this page.');
+        setError(`You are not authorized to view this page. Required role: ${requiredRole || 'Authenticated User'}`);
       } finally {
-        setLoading(false);  // Loading completed regardless of success or failure
+        setLoading(false);
       }
     };
 
     if (state.isAuthenticated) {
-      validateToken();  // Validate the ID token if the user is authenticated
+      validateToken();
     } else {
-      signIn();  // Trigger sign-in if not authenticated
+      signIn();
       setLoading(false);
     }
-  }, [getIDToken, signIn, state.isAuthenticated]);
+  }, [getIDToken, signIn, state.isAuthenticated, requiredRole]);
 
-  // If the token validation is still in progress, show a loading indicator
   if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-             <div className="text-xl font-semibold">Loading...</div>
-           </div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-xl font-semibold">Loading...</div>
+      </div>
+    );
   }
 
-  // If not authenticated or not authorized, redirect to home page
   if (!state.isAuthenticated || !isAuthorized) {
     return <Navigate to="/" state={{ from: location }} />;
   }
 
-  // If there's an error during token validation, show the error
   if (error) {
-    return <div className="flex items-center justify-center h-screen">
-             <div className="text-red-500 text-xl font-semibold">{error}</div>
-           </div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-red-500 text-xl font-semibold">{error}</div>
+      </div>
+    );
   }
 
-  // Render the protected route's children if the user is authenticated and authorized
   return children;
 };
 

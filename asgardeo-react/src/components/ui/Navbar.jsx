@@ -166,7 +166,7 @@ const Navbar = () => {
                                 to="/Responder"
                                 className={navLinkStyles("/Responder")}
                             >
-                                Responder
+                                Monitor Zone
                             </Link>
                         )}
                         {isTourist && (
@@ -174,7 +174,7 @@ const Navbar = () => {
                                 to="/Tourist"
                                 className={navLinkStyles("/Tourist")}
                             >
-                                Tourist
+                               My Safety Kit
                             </Link>
                         )}
                     </div>
